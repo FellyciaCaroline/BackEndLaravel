@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ContactController extends Controller
 {
@@ -12,7 +13,11 @@ class ContactController extends Controller
      */
     public function index()
     {
-        //
+        $contact = Contact::all();
+        $data['success'] = true;
+        $data['message'] = "Data Pesan";
+        $data['result'] = $contact;
+        return response()->json($data, Response::HTTP_OK);
     }
 
     /**
@@ -28,7 +33,19 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validate = $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'pesan' => 'required',
+        ]);
+
+        $result = Contact::create($validate); //simpan ke tabel contact
+        if($result){
+            $data['success'] = true;
+            $data['message'] = "Pesan anda berhasil disimpan";
+            $data['result'] = $result;
+            return response()->json($data, Response::HTTP_CREATED);
+        }
     }
 
     /**
@@ -60,6 +77,16 @@ class ContactController extends Controller
      */
     public function destroy(Contact $contact)
     {
-        //
+        $contact = Contact::find($contact->id);
+        if($contact){
+            $contact->delete();
+            $data["success"] = true;
+            $data["message"] = "Data pesan berhasil dihapus";
+            return response()->json($data, Response::HTTP_OK);
+        }else {
+            $data["success"] = false;
+            $data["message"] = "Data pesan tidak ditemukan";
+            return response()->json($data, Response::HTTP_NOT_FOUND);
+        }
     }
 }
