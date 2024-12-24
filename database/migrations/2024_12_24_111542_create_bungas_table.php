@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('bungas', function (Blueprint $table) {
             $table->id();
+            $table->string('foto');
+            $table->string('nama_bunga');
+            $table->string('deskripsi');
             $table->timestamps();
         });
     }
