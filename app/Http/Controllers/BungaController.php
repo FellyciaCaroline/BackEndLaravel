@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Bunga;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+
 class BungaController extends Controller
 {
     /**
@@ -40,8 +41,12 @@ class BungaController extends Controller
         ]);
 
         if($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('images', 'public');
-            $validate['foto'] = $path; // Add file path to the validated data
+            $uploadedFile = Cloudinary::upload($request->file('foto')->getRealPath(), [
+                'folder' => 'uploads/bunga',
+            ]);
+
+            // Ambil URL aman dan public_id untuk file yang diunggah
+            $validate['foto'] = $uploadedFile->getSecurePath(); // URL aman
         }
 
         $result = Bunga::create($validate); //simpan ke tabel bunga
@@ -81,17 +86,30 @@ class BungaController extends Controller
         ]);
 
         $bungas = Bunga::find($id);
-        $filePath = 'public/'. $bungas->foto;
-
-        // Upload gambar baru
-        $path = $request->file('foto')->store('images', 'public');
-        $validate['foto'] = $path;
-
-        // Hapus gambar lama
-        if (Storage::exists($filePath)) {
-            Storage::delete($filePath);
+        if (!$bungas) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data bunga tidak ditemukan'
+            ], Response::HTTP_NOT_FOUND);
         }
 
+        // Hapus gambar lama di Cloudinary jika ada
+        if ($bungas->foto) {
+            // Ekstrak public_id dari URL
+            $fileUrl = $bungas->foto;
+            $publicId = substr($fileUrl, strpos($fileUrl, 'uploads/bunga/'), strrpos($fileUrl, '.') - strpos($fileUrl, 'uploads/bunga/'));
+
+            // Hapus file lama di Cloudinary
+            Cloudinary::destroy($publicId);
+        }
+
+
+        // Upload gambar baru ke Cloudinary
+        $uploadedFile = Cloudinary::upload($request->file('foto')->getRealPath(), [
+            'folder' => 'uploads/bunga',
+        ]);
+
+        $validate['foto'] = $uploadedFile->getSecurePath(); // URL file baru
 
         $result = Bunga::where('id', $id)->update($validate);
 
@@ -108,17 +126,18 @@ class BungaController extends Controller
      */
     public function destroy(Bunga $bunga)
     {
-        $bunga = Bunga::find($bunga->id);
+        $bungas = Bunga::find($bunga->id);
 
-        $filePath = 'public/'. $bunga->foto;
+        $fileUrl = $bungas->foto;
 
-        if($bunga){
+        if($bungas){
             // Hapus gambar lama
-            if (Storage::exists($filePath)) {
-                Storage::delete($filePath);
-            }
+            $publicId = substr($fileUrl, strpos($fileUrl, 'uploads/bunga/'), strrpos($fileUrl, '.') - strpos($fileUrl, 'uploads/bunga/'));
 
-            $bunga->delete();
+            // Hapus file lama di Cloudinary
+            Cloudinary::destroy($publicId);
+
+            $bungas->delete();
             $data["success"] = true;
             $data["message"] = "Data bunga berhasil dihapus";
             return response()->json($data, Response::HTTP_OK);
