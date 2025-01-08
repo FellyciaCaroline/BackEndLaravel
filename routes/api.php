@@ -22,4 +22,4 @@ Route::get('logout', [AuthController::class, 'logout']);
 Route::post('contact', [ContactController::class, 'store'] );
 
 Route::get('bunga', [BungaController::class, 'index'] );
-Route::get('bunga/{bunga}', [BungaController::class, 'index'] );
+Route::get('bunga/{bunga}', [BungaController::class, 'show'] );
