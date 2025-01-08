@@ -64,6 +64,17 @@ class BungaController extends Controller
     public function show(Bunga $bunga)
     {
         //
+        $bunga = Bunga::find($id);
+        if (!$bunga) {
+            $data['success'] = false;
+            $data['message'] = "Data bunga berhasil dihapus";
+            return response()->json($data, Response::HTTP_NOT_FOUND);
+        } else {
+            $data['success'] = true;
+            $data['message'] = "Data Bunga";
+            $data['result'] = $bunga;
+            return response()->json($data, Response::HTTP_OK);
+        }
     }
 
     /**
