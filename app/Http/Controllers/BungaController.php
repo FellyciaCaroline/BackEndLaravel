@@ -105,14 +105,40 @@ class BungaController extends Controller
         }
 
         // Hapus gambar lama jika ada dan foto baru diunggah
+        // if ($request->hasFile('foto')) {
+        //     if ($bungas->foto) {
+        //         // Ekstrak public_id dari URL
+        //         $fileUrl = $bungas->foto;
+        //         $fileParts = pathinfo(parse_url($fileUrl, PHP_URL_PATH)); // Ambil bagian path dari URL
+        //         $publicId = $fileParts['dirname'] . '/' . $fileParts['filename']; // Dapatkan public_id tanpa ekstensi
+
+        //         return($publicId);
+        //         // Hapus file lama di Cloudinary
+        //         Cloudinary::destroy($publicId);
+        //     }
+
+        //     // Upload gambar baru ke Cloudinary
+        //     $uploadedFile = Cloudinary::upload($request->file('foto')->getRealPath(), [
+        //         'folder' => 'uploads/bunga',
+        //     ]);
+        //     $validate['foto'] = $uploadedFile->getSecurePath(); // URL file baru
+        // } else {
+        //     // Jika tidak ada file baru, tetap gunakan foto lama
+        //     $validate['foto'] = $bungas->foto;
+        // }
+
         if ($request->hasFile('foto')) {
             if ($bungas->foto) {
                 // Ekstrak public_id dari URL
                 $fileUrl = $bungas->foto;
-                $fileParts = pathinfo(parse_url($fileUrl, PHP_URL_PATH)); // Ambil bagian path dari URL
-                $publicId = $fileParts['dirname'] . '/' . $fileParts['filename']; // Dapatkan public_id tanpa ekstensi
+                $publicId = substr(
+                    $fileUrl,
+                    strpos($fileUrl, 'uploads/bunga/'),
+                    strrpos($fileUrl, '.') - strpos($fileUrl, 'uploads/bunga/')
+                );
 
                 return($publicId);
+
                 // Hapus file lama di Cloudinary
                 Cloudinary::destroy($publicId);
             }
