@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Validator;
 
 class AuthController extends Controller
 {
@@ -35,7 +36,7 @@ class AuthController extends Controller
             // return $this->sendResponse($success, 'User berhasil didaftarkan');
             return response()->json([
                 'success' => true,
-                'message' => 'User berhasil didaftarkan',
+                'message' => 'Admin berhasil didaftarkan',
                 'data'    => $success
             ], 200);
         }
