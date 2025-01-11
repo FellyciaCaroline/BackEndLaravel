@@ -91,7 +91,7 @@ class BungaController extends Controller
     public function update(Request $request, $id)
     {
         $validate = $request->validate([
-            'foto' => 'required|file|max:5000',
+            'foto' => 'nullable|file|max:5000', // Foto boleh kosong
             'nama_bunga' => 'required',
             'deskripsi' => 'required|max:10000'
         ]);
@@ -104,32 +104,43 @@ class BungaController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        // Hapus gambar lama di Cloudinary jika ada
-        if ($bungas->foto) {
-            // Ekstrak public_id dari URL
-            $fileUrl = $bungas->foto;
-            $publicId = substr($fileUrl, strpos($fileUrl, 'uploads/bunga/'), strrpos($fileUrl, '.') - strpos($fileUrl, 'uploads/bunga/'));
+        // Hapus gambar lama jika ada dan foto baru diunggah
+        if ($request->hasFile('foto')) {
+            if ($bungas->foto) {
+                // Ekstrak public_id dari URL
+                $fileUrl = $bungas->foto;
+                $fileParts = pathinfo(parse_url($fileUrl, PHP_URL_PATH)); // Ambil bagian path dari URL
+                $publicId = $fileParts['dirname'] . '/' . $fileParts['filename']; // Dapatkan public_id tanpa ekstensi
 
-            // Hapus file lama di Cloudinary
-            Cloudinary::destroy($publicId);
+                // Hapus file lama di Cloudinary
+                Cloudinary::destroy($publicId);
+            }
+
+            // Upload gambar baru ke Cloudinary
+            $uploadedFile = Cloudinary::upload($request->file('foto')->getRealPath(), [
+                'folder' => 'uploads/bunga',
+            ]);
+            $validate['foto'] = $uploadedFile->getSecurePath(); // URL file baru
+        } else {
+            // Jika tidak ada file baru, tetap gunakan foto lama
+            $validate['foto'] = $bungas->foto;
         }
 
+        // Update data bunga
+        $result = $bungas->update($validate);
 
-        // Upload gambar baru ke Cloudinary
-        $uploadedFile = Cloudinary::upload($request->file('foto')->getRealPath(), [
-            'folder' => 'uploads/bunga',
-        ]);
-
-        $validate['foto'] = $uploadedFile->getSecurePath(); // URL file baru
-
-        $result = Bunga::where('id', $id)->update($validate);
-
-        if($result){
-            $data['success'] = true;
-            $data['message'] = "Data bunga berhasil diupdate";
-            $data['result'] = $result;
-            return response()->json($data, Response::HTTP_OK);
+        if ($result) {
+            return response()->json([
+                'success' => true,
+                'message' => "Data bunga berhasil diupdate",
+                'result' => $bungas
+            ], Response::HTTP_OK);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => "Gagal mengupdate data bunga"
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     /**

@@ -7,7 +7,40 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'          => 'required',
+            'email'         => 'required|email',
+            'password'      => 'required',
+            'c_password'    => 'required|same:password'
+        ]);
+
+        if ($validator->fails()) {
+            // return $this->sendError('Validasi gagal', $validator->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'data'    => $validator->errors()
+            ], 400);
+        } else {
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+            // simpan ke tabel user
+            $user = User::create($input);
+            // generate token ==> simpan data ke tabel personal access token
+            $success['token'] = $user->createToken('MyApp')->plainTextToken;
+            // ambil nama user
+            $success['user'] = $user->name;
+            // return $this->sendResponse($success, 'User berhasil didaftarkan');
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil didaftarkan',
+                'data'    => $success
+            ], 200);
+        }
+    }
+
     public function login(Request $request)
     {
         // jika email dan password terdaftar di tabel users

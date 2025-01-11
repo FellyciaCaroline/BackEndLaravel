@@ -23,3 +23,4 @@ Route::post('contact', [ContactController::class, 'store'] );
 
 Route::get('bunga', [BungaController::class, 'index'] );
 Route::get('bunga/{bunga}', [BungaController::class, 'show'] );
+Route::post('bunga/{bunga}', [BungaController::class,'update']);
