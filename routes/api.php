@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->patch('bunga/{bunga}', [BungaController::clas
 Route::middleware('auth:sanctum')->get('contact', [ContactController::class, 'index'] );
 Route::middleware('auth:sanctum')->delete('contact/{contact}', [ContactController::class, 'destroy'] );
 
+Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 Route::get('logout', [AuthController::class, 'logout']);
 
