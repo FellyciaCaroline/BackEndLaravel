@@ -137,7 +137,7 @@ class BungaController extends Controller
                     strrpos($fileUrl, '.') - strpos($fileUrl, 'uploads/bunga/')
                 );
 
-                return($publicId);
+                // return($publicId);
 
                 // Hapus file lama di Cloudinary
                 Cloudinary::destroy($publicId);
@@ -153,21 +153,21 @@ class BungaController extends Controller
             $validate['foto'] = $bungas->foto;
         }
 
-        // // Update data bunga
-        // $result = $bungas->update($validate);
+        // Update data bunga
+        $result = $bungas->update($validate);
 
-        // if ($result) {
-        //     return response()->json([
-        //         'success' => true,
-        //         'message' => "Data bunga berhasil diupdate",
-        //         'result' => $bungas
-        //     ], Response::HTTP_OK);
-        // }
+        if ($result) {
+            return response()->json([
+                'success' => true,
+                'message' => "Data bunga berhasil diupdate",
+                'result' => $bungas
+            ], Response::HTTP_OK);
+        }
 
-        // return response()->json([
-        //     'success' => false,
-        //     'message' => "Gagal mengupdate data bunga"
-        // ], Response::HTTP_BAD_REQUEST);
+        return response()->json([
+            'success' => false,
+            'message' => "Gagal mengupdate data bunga"
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     /**
