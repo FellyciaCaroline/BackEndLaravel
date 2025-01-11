@@ -64,7 +64,7 @@ class BungaController extends Controller
     public function show(Bunga $bunga)
     {
         //
-        $bunga = Bunga::find($id);
+        $bunga = Bunga::find($bunga->id);
         if (!$bunga) {
             $data['success'] = false;
             $data['message'] = "Data bunga berhasil dihapus";
