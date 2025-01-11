@@ -12,7 +12,7 @@ Route::get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->post('bunga', [BungaController::class, 'store'] );
 Route::middleware('auth:sanctum')->delete('bunga/{bunga}', [BungaController::class, 'destroy'] );
-Route::middleware('auth:sanctum')->patch('bunga/{bunga}', [BungaController::class,'update']);
+Route::middleware('auth:sanctum')->post('bunga/{bunga}', [BungaController::class,'update']);
 Route::middleware('auth:sanctum')->get('contact', [ContactController::class, 'index'] );
 Route::middleware('auth:sanctum')->delete('contact/{contact}', [ContactController::class, 'destroy'] );
 
@@ -24,4 +24,4 @@ Route::post('contact', [ContactController::class, 'store'] );
 
 Route::get('bunga', [BungaController::class, 'index'] );
 Route::get('bunga/{bunga}', [BungaController::class, 'show'] );
-Route::post('bunga/{bunga}', [BungaController::class,'update']);
+
